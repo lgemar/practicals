@@ -54,7 +54,7 @@ square_features = np.dot(features_matrix.T, features_matrix)
 
 # Define the lamdba penalty scalar and the "ridge" matrix
 lambda_penalty = 4
-ridge_identity = lambda_penalty * np.identity(256)
+ridge_identity = np.identity(256)
 
 # Find the regression weights using the Moore-Penrose pseudoinverse.
 w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
