@@ -52,13 +52,16 @@ gap_vector = np.array(gap_array)
 # Multiply the feature matrix by its inverse
 square_features = np.dot(features_matrix.T, features_matrix)
 
-# Define the lamdba penalty scalar and the "ridge" matrix
-lambda_penalty = 4
-ridge_identity = np.identity(256)
+# Create weight vectors for many different lambdas
+lambda_options = np.linspace(1, 50, 100)
+for alambda in lambda_options:
+	# Define the lamdba penalty scalar and the "ridge" matrix
+	lambda_penalty = alambda
+	ridge_identity = np.identity(256)
 
-# Find the regression weights using the Moore-Penrose pseudoinverse.
-w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
-					np.dot(features_matrix.T, gap_vector))
+	# Find the regression weights using the Moore-Penrose pseudoinverse.
+	w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
+						np.dot(features_matrix.T, gap_vector))
 
 # Sanity checks to make sure that matrices, vectors, and dimensions
 # Look correct for the relevant variables in the problem
