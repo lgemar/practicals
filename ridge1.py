@@ -45,23 +45,14 @@ with open(train_filename, 'r') as csv_fh:
 		# Add to teh feature-gap pairing list
         train_data.append({'features': features, 'gap': gap})
 
+csv_fh.close()
+
 # Create feature matrix and HOMO-LUMO gaps matrix
 features_matrix = np.vstack(features_stack)
 gap_vector = np.array(gap_array)
 
-# Multiply the feature matrix by its inverse
+# Multiply the feature matrix by its transpose
 square_features = np.dot(features_matrix.T, features_matrix)
-
-# Create weight vectors for many different lambdas
-lambda_options = np.linspace(1, 50, 100)
-for alambda in lambda_options:
-	# Define the lamdba penalty scalar and the "ridge" matrix
-	lambda_penalty = alambda
-	ridge_identity = np.identity(256)
-
-	# Find the regression weights using the Moore-Penrose pseudoinverse.
-	w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
-						np.dot(features_matrix.T, gap_vector))
 
 # Sanity checks to make sure that matrices, vectors, and dimensions
 # Look correct for the relevant variables in the problem
@@ -76,18 +67,6 @@ print "Gap vector looks like: ", gap_vector
 print "Feature matrix times its inverse has shape: ", square_features.shape
 print "Feature matrix times its transpose looks like: "
 print square_features
-
-print "Lambda penalty: ", lambda_penalty
-print "Ridge matrix has shape: ", ridge_identity.shape
-print "Ridge matrix looks like: "
-print ridge_identity
-
-print "Regression weights vector has shape: ", w.shape
-print "Regression weights look like: "
-print w
-
-csv_fh.close()
-
 
 with open(test_filename, 'r') as csv_test:
 	# This will hold the actual HOMO-LUMO gap values
@@ -106,13 +85,12 @@ with open(test_filename, 'r') as csv_test:
 		YTest.append(gapTest)
 		# Append the feature info to the feature array list
 		features_arrayTest.append(np.array([float(x) for x in row[1:257]]))		
+csv_test.close()
 
 # Create a test matrix and YTest --> the actual HOMO-LUMO gaps
 test_matrix = np.vstack(features_arrayTest)
 actual_gaps_vector = np.array(YTest)
 
-# Use the solution weights to predict the HOMO-LUMO gaps
-predicted_gaps_vector = np.dot(test_matrix, w)
 
 # Sanity check to make sure the matrices and arrays look fine
 
@@ -124,13 +102,44 @@ print "Actual HOMO-LUMO gaps vector has shape: ", actual_gaps_vector.shape
 print "HOMO-LUMO actual values look like: ", 
 print actual_gaps_vector
 
-print "Predicted HOMO-LUMO gaps vector has shape: ", predicted_gaps_vector.shape
-print "HOMO-LUMO predicted values look like: ", 
-print predicted_gaps_vector
 
-# Calculate the error of the predicted versus the actual values
-rmse = RMSE(predicted_gaps_vector, actual_gaps_vector)
-print "RMSE with ridge method: ", rmse
+# Create weight vectors for many different lambdas
+rmse_array = []
+lambda_options = np.linspace(0.01, 10, 100)
+for alambda in lambda_options:
+	# Define the lamdba penalty scalar and the "ridge" matrix
+	lambda_penalty = alambda
+	ridge_identity = np.identity(256)
+
+	# Find the regression weights using the Moore-Penrose pseudoinverse.
+	w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
+						np.dot(features_matrix.T, gap_vector))
+
+
+	# Use the solution weights to predict the HOMO-LUMO gaps
+	predicted_gaps_vector = np.dot(test_matrix, w)
+	rmse = RMSE(predicted_gaps_vector, actual_gaps_vector)
+	rmse_array.append(rmse)
+
+	'''
+	print "Lambda penalty: ", lambda_penalty
+	print "Ridge matrix has shape: ", ridge_identity.shape
+	print "Ridge matrix looks like: "
+	print ridge_identity
+
+	print "Regression weights vector has shape: ", w.shape
+	print "Regression weights look like: "
+	print w
+	print "Predicted HOMO-LUMO gaps vector has shape: ", predicted_gaps_vector.shape
+	print "HOMO-LUMO predicted values look like: ", 
+	print predicted_gaps_vector
+	print "Lambda: ", lambda_penalty, " RMSE with ridge method: ", rmse
+	'''
+
+# Plot the choice of lamdba vs the RMSE
+pl.plot(lambda_options, rmse_array, '-')
+pl.show()
+
 
 
 '''
