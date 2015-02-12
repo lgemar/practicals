@@ -3,8 +3,8 @@ from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors as Descriptors
 import csv
 
-train_filename = 'smallTrain.csv'
-feature_added = 'smallTrain_plus.csv'
+train_filename = 'test.csv'
+feature_added = 'test_plus.csv'
 
 csv_destination = open(feature_added, 'w')
 with open(train_filename, 'r') as csv_handle: 
