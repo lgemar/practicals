@@ -62,6 +62,7 @@ w = np.linalg.solve(square_features + ridge_matrix,
 
 # Sanity checks to make sure that matrices, vectors, and dimensions
 # Look correct for the relevant variables in the problem
+
 print "Dimensions of the feature matrix: ", features_matrix.shape
 print "Features matrix looks like: " 
 print features_matrix
@@ -84,22 +85,52 @@ print w
 
 csv_fh.close()
 
-'''
 
 with open(test_filename, 'r') as csv_test:
-
+	# This will hold the actual HOMO-LUMO gap values
 	YTest = []
+	# This will hold the features of each row in test set
 	features_arrayTest = []
-
+	# CSV scanner
 	reader = csv.reader(csv_test)
-
-	time.sleep(10)
+	# Advances the reader past the header
+	next(reader, None)
+	# Read through each row in the CSV
 	for row in reader:
+		# Pull out the gap info for the HUMO-LUMO gap
 		gapTest = float(row[257])
+		# Append the gap info to the gap list
 		YTest.append(gapTest)
+		# Append the feature info to the feature array list
 		features_arrayTest.append(np.array([float(x) for x in row[1:257]]))		
 
+# Create a test matrix and YTest --> the actual HOMO-LUMO gaps
+test_matrix = np.vstack(features_arrayTest)
+actual_gaps_vector = np.array(YTest)
 
+# Use the solution weights to predict the HOMO-LUMO gaps
+predicted_gaps_vector = np.dot(test_matrix, w)
+
+# Sanity check to make sure the matrices and arrays look fine
+
+print "Test matrix has shape: ", test_matrix.shape
+print "Test matrix looks like: "
+print test_matrix
+
+print "Actual HOMO-LUMO gaps vector has shape: ", actual_gaps_vector.shape
+print "HOMO-LUMO actual values look like: ", 
+print actual_gaps_vector
+
+print "Predicted HOMO-LUMO gaps vector has shape: ", predicted_gaps_vector.shape
+print "HOMO-LUMO predicted values look like: ", 
+print predicted_gaps_vector
+
+# Calculate the error of the predicted versus the actual values
+rmse = RMSE(predicted_gaps_vector, actual_gaps_vector)
+print "RMSE with ridge method: ", rmse
+
+
+'''
 # pca = PCA(n_components=100)
 
 # P = pca.fit_transform(features_array)
