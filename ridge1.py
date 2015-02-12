@@ -49,17 +49,38 @@ with open(train_filename, 'r') as csv_fh:
 features_matrix = np.vstack(features_stack)
 gap_vector = np.array(gap_array)
 
+# Multiply the feature matrix by its inverse
+square_features = np.dot(features_matrix.T, features_matrix)
+
+# Define the lamdba penalty scalar and the "ridge" matrix
+lambda_penalty = 4
+ridge_matrix = lambda_penalty * np.identity(256)
+
+# Find the regression weights using the Moore-Penrose pseudoinverse.
+w = np.linalg.solve(square_features - ridge_matrix, 
+					np.dot(features_matrix.T, gap_vector))
+
 # Sanity checks to make sure that matrices, vectors, and dimensions
 # Look correct for the relevant variables in the problem
+print "Dimensions of the feature matrix: ", features_matrix.shape
 print "Features matrix looks like: " 
 print features_matrix
-print "Dimensions of the feature matrix: ", features_matrix.shape
-print "Gap vector looks like: ", gap_vector
-print "Dimension fo the gap vector: ", gap_vector.shape
 
-# Create the lamdba penalty matrix using a scalar and an identity 
-# matrix of the same size as the outer dimension of the design / feature
-# matrix
+print "Dimension of the gap vector: ", gap_vector.shape
+print "Gap vector looks like: ", gap_vector
+
+print "Feature matrix times its inverse has shape: ", square_features.shape
+print "Feature matrix times its transpose looks like: "
+print square_features
+
+print "Lambda penalty: ", lambda_penalty
+print "Ridge matrix has shape: ", ridge_matrix.shape
+print "Ridge matrix looks like: "
+print ridge_matrix
+
+print "Regression weights vector has shape: ", w.shape
+print "Regression weights look like: "
+print w
 
 csv_fh.close()
 
