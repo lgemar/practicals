@@ -7,8 +7,10 @@ import time
 # from sklearn.decomposition import PCA
 # from sklearn.svm import SVR
 
-train_filename = 'tinyTrain.csv'
-test_filename  = 'tinyTest.csv'
+train_filename = 'tinyTrain_plus.csv'
+test_filename  = 'tinyTest_plus.csv'
+
+num_features = (256 + 37)
 
 train_data = []
 
@@ -26,7 +28,7 @@ with open(train_filename, 'r') as csv_fh:
 	# Advances the reader past the header
     next(reader, None)
 	# Holds the features of the current row
-    features = np.zeros(shape=(1,256));
+    features = np.zeros(shape=(1,num_features));
 	# Holds a dynamic array of HOMO-LUMO gaps
     gap_array = []
 	# list of features-gap pairs
@@ -34,13 +36,13 @@ with open(train_filename, 'r') as csv_fh:
 	# Process the csv line by line
     for row in reader:
 		# Grab the feature array for this molecule
-        features = np.array([float(x) for x in row[1:257]])
+        features = np.array([float(x) for x in row[1:(num_features + 1)]])
 		# Append the feature array for this molecule to the larger
 		# feature matrix
     	features_stack.append(features)
 		# Grab the information on HOMO-LUMO gap and append that info
 		# to the vector of gaps
-        gap = float(row[257])
+        gap = float(row[num_features + 1])
         gap_array.append(gap)
 		# Add to teh feature-gap pairing list
         train_data.append({'features': features, 'gap': gap})
@@ -80,11 +82,11 @@ with open(test_filename, 'r') as csv_test:
 	# Read through each row in the CSV
 	for row in reader:
 		# Pull out the gap info for the HUMO-LUMO gap
-		gapTest = float(row[257])
+		gapTest = float(row[num_features + 1])
 		# Append the gap info to the gap list
 		YTest.append(gapTest)
 		# Append the feature info to the feature array list
-		features_arrayTest.append(np.array([float(x) for x in row[1:257]]))		
+		features_arrayTest.append(np.array([float(x) for x in row[1:(num_features + 1)]]))		
 csv_test.close()
 
 # Create a test matrix and YTest --> the actual HOMO-LUMO gaps
@@ -105,11 +107,11 @@ print actual_gaps_vector
 
 # Create weight vectors for many different lambdas
 rmse_array = []
-lambda_options = np.linspace(0.01, 10, 100)
+lambda_options = np.linspace(0.01, 100, 100)
 for alambda in lambda_options:
 	# Define the lamdba penalty scalar and the "ridge" matrix
 	lambda_penalty = alambda
-	ridge_identity = np.identity(256)
+	ridge_identity = np.identity(num_features)
 
 	# Find the regression weights using the Moore-Penrose pseudoinverse.
 	w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 

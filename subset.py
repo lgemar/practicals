@@ -22,7 +22,7 @@ with gzip.open(train_filename, 'r') as train_fh:
         #features = np.array([float(x) for x in row[1:257]])
         #gap      = float(row[257])
         
-        if(i < 35000):
+        if(i < 100000):
         	totalTrain.append(row)
 
         elif i < 70000:
@@ -33,18 +33,20 @@ with gzip.open(train_filename, 'r') as train_fh:
         	print "FATAL ERROR!!!"
         i += 1
 
-with open('tinyTrain.csv', 'wb') as tiny:
+with open('smallTrain.csv', 'wb') as tiny:
 	writer = csv.writer(tiny)
 	for row in totalTrain:
 		writer.writerow(row)
 
 
+'''
 print len(totalTest)
 
 with open('tinyTest.csv', 'wb') as tinyTest:
 	writer = csv.writer(tinyTest)
 	for row in totalTest:
 		writer.writerow(row)
+'''
 
 
 print "completely done!"
