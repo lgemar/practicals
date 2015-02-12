@@ -54,10 +54,10 @@ square_features = np.dot(features_matrix.T, features_matrix)
 
 # Define the lamdba penalty scalar and the "ridge" matrix
 lambda_penalty = 4
-ridge_matrix = lambda_penalty * np.identity(256)
+ridge_identity = lambda_penalty * np.identity(256)
 
 # Find the regression weights using the Moore-Penrose pseudoinverse.
-w = np.linalg.solve(square_features + ridge_matrix, 
+w = np.linalg.solve(square_features + lambda_penalty * ridge_identity, 
 					np.dot(features_matrix.T, gap_vector))
 
 # Sanity checks to make sure that matrices, vectors, and dimensions
@@ -75,9 +75,9 @@ print "Feature matrix times its transpose looks like: "
 print square_features
 
 print "Lambda penalty: ", lambda_penalty
-print "Ridge matrix has shape: ", ridge_matrix.shape
+print "Ridge matrix has shape: ", ridge_identity.shape
 print "Ridge matrix looks like: "
-print ridge_matrix
+print ridge_identity
 
 print "Regression weights vector has shape: ", w.shape
 print "Regression weights look like: "
