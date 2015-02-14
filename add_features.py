@@ -13,10 +13,10 @@ with open(train_filename, 'r') as csv_handle:
 	next(reader, None)
 	feature_list = []
 	for row in reader: 
-		smile = row[0]
+		smile = row[1]
 		mol = Chem.MolFromSmiles(smile)
 		# Place prior features in the feature list
-		feature_list = [float(x) for x in row[1:257]]
+		feature_list = [float(x) for x in row[2:258]]
 		# Place new features in the list
 		feature_list.append(Descriptors.CalcChi0n(mol))
 		feature_list.append(Descriptors.CalcChi0v(mol))
@@ -57,8 +57,8 @@ with open(train_filename, 'r') as csv_handle:
 		feature_list.append(float(Descriptors.CalcNumSaturatedRings(mol)))
 		feature_list.append(float(Descriptors.CalcTPSA(mol)))
 		# Place gap information in the feature list
-		gap = float(row[257])
-		feature_list.append(gap)
+		# gap = float(row[257])
+		# feature_list.append(gap)
 		# Write to csv
 		writer.writerow([smile] + feature_list)
 

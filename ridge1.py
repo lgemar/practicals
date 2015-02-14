@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import pylab as pl
 import time
+import math
 # from sklearn.linear_model import Ridge
 # import sklearn
 # from sklearn.decomposition import PCA
@@ -107,7 +108,8 @@ print actual_gaps_vector
 
 # Create weight vectors for many different lambdas
 rmse_array = []
-lambda_options = np.linspace(0.01, 100, 100)
+lambda_options = np.linspace(0.0001, 10, 100)
+log_lambda_options = []
 for alambda in lambda_options:
 	# Define the lamdba penalty scalar and the "ridge" matrix
 	lambda_penalty = alambda
@@ -123,6 +125,7 @@ for alambda in lambda_options:
 	rmse = RMSE(predicted_gaps_vector, actual_gaps_vector)
 	rmse_array.append(rmse)
 
+	log_lambda_options.append(math.log(alambda))
 	'''
 	print "Lambda penalty: ", lambda_penalty
 	print "Ridge matrix has shape: ", ridge_identity.shape
@@ -139,7 +142,10 @@ for alambda in lambda_options:
 	'''
 
 # Plot the choice of lamdba vs the RMSE
-pl.plot(lambda_options, rmse_array, '-')
+pl.plot(log_lambda_options, rmse_array, '-')
+pl.title("Parameter lambda versus error")
+pl.xlabel("ln(lambda)")
+pl.ylabel("Root mean square error (RMSE)")
 pl.show()
 
 
